@@ -5,7 +5,10 @@
 hs_err_pid*
 
 *.DS_Store
-.classpath
-.project
-.settings/
-
+*/.idea/
+*/project/project/target/
+*/lib_managed/
+*/project/target/
+*/target/
+*/submission/
+*/recitations/
