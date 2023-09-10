@@ -1,6 +1,8 @@
 package recfun
 import common._
 
+import scala.annotation.tailrec
+
 object Main {
   def main(args: Array[String]) {
     println("Pascal's Triangle")
@@ -26,7 +28,29 @@ object Main {
   /**
    * Exercise 2
    */
-  def balance(chars: List[Char]): Boolean = ???
+  def balance(chars: List[Char]): Boolean = {
+    @tailrec
+    def count(chars: List[Char], num: Int): Boolean = {
+      if (chars.isEmpty) {
+        num == 0
+      }
+      else if (chars.head == '(') {
+        count(chars.tail, num + 1)
+      }
+      else if (chars.head == ')') {
+        if (num <= 0) {
+          false
+        } else {
+          count(chars.tail, num - 1)
+        }
+      }
+      else{
+        count(chars.tail, num)
+      }
+    }
+
+    count(chars, 0)
+  }
 
   /**
    * Exercise 3
