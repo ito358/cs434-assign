@@ -2,6 +2,8 @@ package patmat
 
 import common._
 
+import scala.annotation.tailrec
+
 /**
  * Assignment 4: Huffman coding
  *
@@ -77,7 +79,9 @@ object Huffman {
    *       println("integer is  : "+ theInt)
    *   }
    */
-  def times(chars: List[Char]): List[(Char, Int)] = ???
+  def times(chars: List[Char]): List[(Char, Int)] = {
+    chars.groupBy(char => char).map(sameCharacterGroup => (sameCharacterGroup._1, sameCharacterGroup._2.length)).toList
+  }
 
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -86,12 +90,18 @@ object Huffman {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+    freqs.sortBy(frequency => frequency._2).map(frequency => Leaf(frequency._1, frequency._2))
+  }
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = trees match {
+    case _ :: Nil => true
+    case Nil => true
+    case _ => false
+  }
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -105,7 +115,12 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+  def combine(trees: List[CodeTree]): List[CodeTree] = {
+    trees match {
+      case a :: b :: li => (makeCodeTree(a, b) :: li).sortBy(weight)
+      case _ => trees
+    }
+  }
 
   /**
    * This function will be called in the following way:
@@ -124,7 +139,13 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  @tailrec
+  def until(terminateCondition: List[CodeTree] => Boolean, action: List[CodeTree] => List[CodeTree])(tree: List[CodeTree]): List[CodeTree] = {
+    if (terminateCondition(tree))
+      tree
+    else
+      until(terminateCondition, action)(action(tree))
+  }
 
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
@@ -132,8 +153,10 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = ???
-
+  def createCodeTree(chars: List[Char]): CodeTree = {
+    val orderedList = makeOrderedLeafList(times(chars))
+    until(singleton, combine)(orderedList).head
+  }
 
 
   // Part 3: Decoding
